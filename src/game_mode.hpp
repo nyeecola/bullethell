@@ -37,7 +37,7 @@ typedef struct
     int particle_width;
     int particle_height;
     v3 particle_color;
-    v2 particle_orbit_center;
+    v2 particle_orbit_center; // FIXME: currently not used
     // TODO: maybe add a pointer to function that can be called every in particle's update
 } atk_pattern_t;
 
@@ -99,7 +99,10 @@ typedef struct
     v3 color;
 
     entity_type_e owner;
-    v2 orbit_center;
+    v2 *orbit_center;
+    double orbit_angle;
+    double orbit_speed;
+    double orbit_radius;
 } particle_t;
 
 typedef struct

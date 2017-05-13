@@ -80,6 +80,16 @@ int main(int, char *[])
     game_state->game = initialize_game_mode();
     game_state->menu = initialize_menu_mode();
     game_state->type = GAME_MODE;
+    
+    // DEBUG
+    particle_t *p = spawn_particle_orbiting(&game_state->game->player.pos, 50,
+                                            ENTITY_PLAYER, 6, BALL_IMG_PATH, 80, 80,
+                                            V3(255, 255, 255));
+    game_state->game->particles->push_back(p);
+    p = spawn_particle_orbiting(&game_state->game->player.pos, 100, ENTITY_PLAYER, 10,
+                                BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
+    game_state->game->particles->push_back(p);
+    
     // main loop
     bool running = true;
     u64 current_counter = SDL_GetPerformanceCounter();

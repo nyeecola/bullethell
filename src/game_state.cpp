@@ -90,7 +90,6 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
         }
 #endif
 
-
         // update background
         {
             double multiplier = 40;
@@ -126,10 +125,10 @@ void game_state_render(game_state_t *game_state, renderer_t *renderer)
 
         // render background
         SDL_SetRenderDrawColor(renderer->sdl,
-                (u8) round(game->background_color.red),
-                (u8) round(game->background_color.green),
-                (u8) round(game->background_color.blue),
-                (u8) round(game->background_color.alpha));
+                               (u8) round(game->background_color.red),
+                               (u8) round(game->background_color.green),
+                               (u8) round(game->background_color.blue),
+                               (u8) round(game->background_color.alpha));
         SDL_RenderClear(renderer->sdl);
 
         // declare rect that will store the render destination (on screen)

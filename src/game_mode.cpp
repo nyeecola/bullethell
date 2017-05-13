@@ -1,5 +1,5 @@
 particle_t *spawn_particle_towards(v2 pos, v2 vector, int owner, double speed, v2 acceleration,
-                                   v2 orbit_center, const char *image, int w, int h, v3 color)
+                                   const char *image, int w, int h, v3 color)
 {
     assert(image);
 
@@ -13,7 +13,7 @@ particle_t *spawn_particle_towards(v2 pos, v2 vector, int owner, double speed, v
     if (!is_null_vector(vector)) direction = math_normalize(vector);
     else direction = vector;
 
-    particle_t *particle = (particle_t *) malloc(sizeof(*particle));;
+    particle_t *particle = (particle_t *) malloc(sizeof(*particle));
     assert(particle);
     particle->owner = (entity_type_e) owner;
     particle->pos = pos;
@@ -23,31 +23,57 @@ particle_t *spawn_particle_towards(v2 pos, v2 vector, int owner, double speed, v
     particle->w = w;
     particle->h = h;
     particle->color = color;
-    particle->orbit_center = orbit_center;
+    particle->orbit_center = 0;
+    particle->orbit_angle = 0;
+    particle->orbit_speed = 0;
+
+    return particle;
+}
+
+particle_t *spawn_particle_orbiting(v2 *center, double radius, int owner, double speed,
+                                    const char *image, int w, int h, v3 color)
+{
+    assert(image);
+
+	// DEBUG
+#if 0
+	static int count = 0;
+	printf("count = %d\n", ++count);
+#endif
+
+    particle_t *particle = (particle_t *) malloc(sizeof(*particle));
+    assert(particle);
+    particle->owner = (entity_type_e) owner;
+    particle->pos = V2(0, 0);
+    particle->velocity = V2(0, 0);
+    particle->acceleration = V2(0, 0);
+    particle->image_path = image;
+    particle->w = w;
+    particle->h = h;
+    particle->color = color;
+    particle->orbit_center = center;
+    particle->orbit_angle = 0;
+    particle->orbit_speed = speed;
+    particle->orbit_radius = radius;
 
     return particle;
 }
 
 void update_particle_position(particle_t *particle, double dt)
 {
-    // TODO: think how to do this (change acceleration) (probably using pointer to function?)
-    //v2 ortho = V2(-particle->velocity.y, particle->velocity.x) * 0.0005;
-    //particle->acceleration = rotate_vector(ortho, -0.1f);
-
-    // TODO: maybe rethink if this is right (hint: it probably should be done like this)
-    // FIXME: doing orbits like this prevents orbitals around moving objects
-    // orbital
-    if (particle->owner == ENTITY_ENEMY && (particle->orbit_center.x || particle->orbit_center.y))
+    if (particle->orbit_center)
     {
-        v2 dir = particle->orbit_center - particle->pos;
-        if (!is_null_vector(dir)) dir = math_normalize(dir);
-        particle->acceleration = dir * 180; // FIXME: hardcoded gravity is no good
-        particle->velocity += particle->acceleration * dt;
-        particle->pos += particle->velocity * dt;
+        particle->orbit_angle += particle->orbit_speed * dt;
+        while (particle->orbit_angle > PI * 2)
+        {
+            particle->orbit_angle -= PI * 2;
+        }
+
+        particle->pos.x = particle->orbit_center->x + particle->orbit_radius * cos(particle->orbit_angle);
+        particle->pos.y = particle->orbit_center->y + particle->orbit_radius * sin(particle->orbit_angle);
     }
     else
     {
-        // FIXME: this may be wrong (dt squared?)
         particle->velocity += particle->acceleration * dt;
         particle->pos += particle->velocity * dt;
     }
@@ -107,7 +133,6 @@ inline void do_circular_atk(std::list<particle_t *> *particles, int owner, atk_p
                                                           owner,
                                                           atk->particle_speed,
                                                           atk->particle_accel,
-                                                          atk->particle_orbit_center,
                                                           atk->particle_image,
                                                           atk->particle_width,
                                                           atk->particle_height,
@@ -331,28 +356,28 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
             pos.x = game->player.pos.x - 8;
             pos.y = game->player.pos.y;
             particle_t *particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
-                                                          shot_speed, accel, V2(0, 0),
+                                                          shot_speed, accel,
                                                           BALL_IMG_PATH, shot_w, shot_h, color);
             game->particles->push_back(particle);
 
             pos.x = game->player.pos.x - 4;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
-                                              shot_speed, accel, V2(0, 0),
+                                              shot_speed, accel,
                                               BALL_IMG_PATH, shot_w, shot_h, color);
             game->particles->push_back(particle);
 
             pos.x = game->player.pos.x + 4;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
-                                              shot_speed, accel, V2(0, 0),
+                                              shot_speed, accel,
                                               BALL_IMG_PATH, shot_w, shot_h, color);
             game->particles->push_back(particle);
 
             pos.x = game->player.pos.x + 8;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
-                                              shot_speed, accel, V2(0, 0),
+                                              shot_speed, accel,
                                               BALL_IMG_PATH, shot_w, shot_h, color);
             game->particles->push_back(particle);
         }

@@ -74,6 +74,11 @@ inline v3 math_normalize(v3 vector)
     return vector;
 }
 
+inline double dot(v2 a, v2 b)
+{
+    return (a.x * b.x + a.y * b.y);
+}
+
 inline v2 rotate_vector(v2 v, double angle)
 {
     double new_x = v.x * cos(angle) - v.y * sin(angle);

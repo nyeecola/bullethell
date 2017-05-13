@@ -195,7 +195,7 @@ game_mode_t *initialize_game_mode()
             }
         }
     }
-
+    
     return game;
 }
 
