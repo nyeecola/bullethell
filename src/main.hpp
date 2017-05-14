@@ -10,28 +10,28 @@ typedef uint64_t u64;
 // ---------------------
 // renderer
 // ---------------------
-typedef struct
+struct renderer_t
 {
     SDL_Renderer *sdl;
     // TODO: unordered map
     std::map<std::string, SDL_Texture *> images;
-} renderer_t;
+};
 
 // ---------------------
 // input
 // ---------------------
-typedef struct
+struct mouse_t
 {
     int x;
     int y;
-} mouse_t;
+};
 
-typedef struct
+struct input_t
 {
     // keyboard
     const u8 *keys_pressed;
 
     // mouse
     mouse_t mouse;
-} input_t;
+};
 

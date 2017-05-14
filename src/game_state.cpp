@@ -28,14 +28,25 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
             update_particle_position(particle, dt);
 
             // TODO: use current instead of default (we don't have current yet :()
-            if (particle->pos.x < -DEFAULT_SCREEN_WIDTH / 3 ||
-                particle->pos.x > DEFAULT_SCREEN_WIDTH + DEFAULT_SCREEN_WIDTH / 3 ||
-                particle->pos.y < -DEFAULT_SCREEN_HEIGHT / 3 ||
-                particle->pos.y > DEFAULT_SCREEN_HEIGHT + DEFAULT_SCREEN_HEIGHT / 3)
+            if (particle->pos.x < -DEFAULT_SCREEN_WIDTH / 2 ||
+                particle->pos.x > DEFAULT_SCREEN_WIDTH + DEFAULT_SCREEN_WIDTH / 2 ||
+                particle->pos.y < -DEFAULT_SCREEN_HEIGHT / 2 ||
+                particle->pos.y > DEFAULT_SCREEN_HEIGHT + DEFAULT_SCREEN_HEIGHT / 2)
             {
                 it = game->particles->erase(it);
                 free(particle);
                 continue;
+            }
+
+            if (particle->timed)
+            {
+                particle->time_to_live -= dt;
+                if (particle->time_to_live <= 0)
+                {
+                    it = game->particles->erase(it);
+                    free(particle);
+                    continue;
+                }
             }
 
             if (detect_particle_collision(game, particle))

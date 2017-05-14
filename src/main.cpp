@@ -82,13 +82,28 @@ int main(int, char *[])
     game_state->type = GAME_MODE;
     
     // DEBUG
-    particle_t *p = spawn_particle_orbiting(&game_state->game->player.pos, 50,
+    // TODO: maybe make this hero's special atk?
+    /* 
+    particle_t *p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, 0,
                                             ENTITY_PLAYER, 6, BALL_IMG_PATH, 80, 80,
                                             V3(255, 255, 255));
     game_state->game->particles->push_back(p);
-    p = spawn_particle_orbiting(&game_state->game->player.pos, 100, ENTITY_PLAYER, 10,
+    p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, PI/3, ENTITY_PLAYER, 6,
                                 BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
     game_state->game->particles->push_back(p);
+    p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, 2 * PI/3, ENTITY_PLAYER, 6,
+                                BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
+    game_state->game->particles->push_back(p);
+    p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, 3 * PI/3, ENTITY_PLAYER, 6,
+                                BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
+    game_state->game->particles->push_back(p);
+    p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, 4 * PI/3, ENTITY_PLAYER, 6,
+                                BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
+    game_state->game->particles->push_back(p);
+    p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, 5 * PI/3, ENTITY_PLAYER, 6,
+                                BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
+    game_state->game->particles->push_back(p);
+    */
     
     // main loop
     bool running = true;
@@ -142,8 +157,6 @@ int main(int, char *[])
         SDL_RenderPresent(renderer.sdl);
     }
 
-    // TODO: stop using free here (and make cppcheck stop complaining)
-    free(game_state);
     SDL_DestroyRenderer(renderer.sdl);
     SDL_DestroyWindow(window);
     SDL_Quit();

@@ -10,38 +10,48 @@ enum rotation_type_e
     ROTATE_CCW,
 };
 
-typedef struct
+struct color_t
 {
     double red;
     double green;
     double blue;
     double alpha;
-} color_t;
+};
 
 // TODO: make sure these attacks can be used more than once (preserve initial state)
 //       (not sure if needed)
-typedef struct
+struct atk_pattern_t
 {
     v2 *spawn_loc;
     double spawn_rate;             // in seconds
     double time_since_last_spawn;  // in seconds
+    int spawn_limit;
+    int spawn_count;
     int particles_per_spawn;
     double arc_center;
     double arc_size;
     rotation_type_e rotation_type;
     double angle_step;
     double last_angle; // TODO: remember to reset this once the attack is finished
-    double particle_speed;
-    v2 particle_accel;
-    const char *particle_image;
+    const char *particle_image; // TODO: add support for invisible particles
     int particle_width;
     int particle_height;
     v3 particle_color;
-    v2 particle_orbit_center; // FIXME: currently not used
-    // TODO: maybe add a pointer to function that can be called every in particle's update
-} atk_pattern_t;
+    double particle_time_to_live;
 
-typedef struct
+    // TODO: these should be from orbit center when the particle is an orbital
+    double particle_speed;
+    v2 particle_accel;
+
+    v2 *particle_orbit_center; // FIXME: currently not used
+    double particle_orbit_angle;
+    double particle_orbit_speed; // in radians
+    double particle_orbit_radius;
+    double particle_orbit_delta_radius;
+    // TODO: maybe add a pointer to function that can be called every in particle's update
+};
+
+struct enemy_only_t
 {
     bool stopped;
     bool forced_movement;
@@ -54,17 +64,17 @@ typedef struct
     // TODO: change this to a linked list
     // NOTE: attacks do not necessarily happen in order, they can even happen simultaneously
     atk_pattern_t atks[10];
-} enemy_only_t;
+};
 
-typedef struct
+struct player_only_t
 {
     double time_since_last_shot;
     int shot_damage;
     bool hit;
     double time_since_hit; // in seconds
-} player_only_t;
+};
 
-typedef struct
+struct entity_t
 {
     v2 pos;
     double speed;
@@ -83,9 +93,9 @@ typedef struct
         enemy_only_t enemy_data;
         player_only_t player_data;
     };
-} entity_t;
+};
 
-typedef struct
+struct particle_t
 {
     v2 pos;
     v2 velocity;
@@ -103,9 +113,13 @@ typedef struct
     double orbit_angle;
     double orbit_speed;
     double orbit_radius;
-} particle_t;
+    double orbit_delta_radius;
 
-typedef struct
+    bool timed;
+    double time_to_live;
+};
+
+struct game_mode_t
 {
     color_t background_color;
 
@@ -114,4 +128,4 @@ typedef struct
 
     // TODO: start allocating particles on the heap
     std::list<particle_t *> *particles;
-} game_mode_t;
+};

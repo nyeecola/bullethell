@@ -1,5 +1,5 @@
 particle_t *spawn_particle_towards(v2 pos, v2 vector, int owner, double speed, v2 acceleration,
-                                   const char *image, int w, int h, v3 color)
+                                   const char *image, int w, int h, v3 color, double ttl)
 {
     assert(image);
 
@@ -26,12 +26,22 @@ particle_t *spawn_particle_towards(v2 pos, v2 vector, int owner, double speed, v
     particle->orbit_center = 0;
     particle->orbit_angle = 0;
     particle->orbit_speed = 0;
+    if (ttl > 0.0001)
+    {
+        particle->timed = true;
+        particle->time_to_live = ttl;
+    }
+    else
+    {
+        particle->timed = false;
+    }
 
     return particle;
 }
 
-particle_t *spawn_particle_orbiting(v2 *center, double radius, int owner, double speed,
-                                    const char *image, int w, int h, v3 color)
+particle_t *spawn_particle_orbiting(v2 *center, double radius, double delta_radius,
+                                    double start_angle, int owner, double speed,
+                                    const char *image, int w, int h, v3 color, double ttl)
 {
     assert(image);
 
@@ -52,9 +62,19 @@ particle_t *spawn_particle_orbiting(v2 *center, double radius, int owner, double
     particle->h = h;
     particle->color = color;
     particle->orbit_center = center;
-    particle->orbit_angle = 0;
+    particle->orbit_angle = start_angle;
     particle->orbit_speed = speed;
     particle->orbit_radius = radius;
+    particle->orbit_delta_radius = delta_radius;
+    if (ttl > 0.0001)
+    {
+        particle->timed = true;
+        particle->time_to_live = ttl;
+    }
+    else
+    {
+        particle->timed = false;
+    }
 
     return particle;
 }
@@ -69,6 +89,7 @@ void update_particle_position(particle_t *particle, double dt)
             particle->orbit_angle -= PI * 2;
         }
 
+        particle->orbit_radius += particle->orbit_delta_radius * dt;
         particle->pos.x = particle->orbit_center->x + particle->orbit_radius * cos(particle->orbit_angle);
         particle->pos.y = particle->orbit_center->y + particle->orbit_radius * sin(particle->orbit_angle);
     }
@@ -111,10 +132,14 @@ bool detect_particle_collision(game_mode_t *game, particle_t *particle)
 
 // creates a circular attack using the state passed by `atk`
 // read the atk_pattern_t structure for more information
-inline void do_circular_atk(std::list<particle_t *> *particles, int owner, atk_pattern_t *atk, double dt)
+inline void do_atk(std::list<particle_t *> *particles, int owner, atk_pattern_t *atk, double dt)
 {
-    if (atk->time_since_last_spawn > atk->spawn_rate)
+    if (atk->time_since_last_spawn >= atk->spawn_rate)
     {
+        assert(!atk->spawn_limit || atk->spawn_count <= atk->spawn_limit);
+        if (atk->spawn_limit && atk->spawn_count == atk->spawn_limit) return;
+        ++atk->spawn_count;
+
         atk->time_since_last_spawn = atk->time_since_last_spawn - atk->spawn_rate + dt;
 
         double x, y;
@@ -128,15 +153,34 @@ inline void do_circular_atk(std::list<particle_t *> *particles, int owner, atk_p
             x = cos(radians);
             y = sin(radians);
 
-            particle_t *particle = spawn_particle_towards(*atk->spawn_loc,
-                                                          V2(x, y),
-                                                          owner,
-                                                          atk->particle_speed,
-                                                          atk->particle_accel,
-                                                          atk->particle_image,
-                                                          atk->particle_width,
-                                                          atk->particle_height,
-                                                          atk->particle_color);
+            particle_t *particle;
+            if (atk->particle_orbit_center)
+            {
+                particle = spawn_particle_orbiting(atk->particle_orbit_center,
+                                                   atk->particle_orbit_radius,
+                                                   atk->particle_orbit_delta_radius,
+                                                   radians,
+                                                   owner,
+                                                   atk->particle_orbit_speed,
+                                                   atk->particle_image,
+                                                   atk->particle_width,
+                                                   atk->particle_height,
+                                                   atk->particle_color,
+                                                   atk->particle_time_to_live);
+            }
+            else
+            {
+                particle = spawn_particle_towards(*atk->spawn_loc,
+                                                  V2(x, y),
+                                                  owner,
+                                                  atk->particle_speed,
+                                                  atk->particle_accel,
+                                                  atk->particle_image,
+                                                  atk->particle_width,
+                                                  atk->particle_height,
+                                                  atk->particle_color,
+                                                  atk->particle_time_to_live);
+            }
             particles->push_back(particle);
         }
     }
@@ -196,68 +240,74 @@ void ai_do_actions(game_mode_t *game, double dt)
         if (enemy->enemy_data.time_since_fight_started > 5 &&
             enemy->enemy_data.time_since_fight_started < 8)
         {
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[0], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[0], dt);
         }
 
         if (enemy->enemy_data.time_since_fight_started > 2 &&
             enemy->enemy_data.time_since_fight_started < 9)
         {
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[1], dt);
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[2], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[1], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[2], dt);
         }
 
-        if (enemy->enemy_data.time_since_fight_started > 10 &&
-            enemy->enemy_data.time_since_fight_started < 20)
+        // atk while stopped
         {
-            if (!enemy->enemy_data.forced_movement)
+            if (enemy->enemy_data.time_since_fight_started > 10 &&
+                    enemy->enemy_data.time_since_fight_started < 20)
             {
-                enemy->enemy_data.forced_movement = true;
-                enemy->enemy_data.stopped = false;
-
-                v2 loc = V2(300, 100);
-                enemy->enemy_data.target_loc = loc;
-            }
-
-            if (enemy->enemy_data.stopped)
-            {
-                v2 player_dir = game->player.pos - enemy->pos;
-                if (is_null_vector(player_dir))
+                if (!enemy->enemy_data.forced_movement)
                 {
-                    player_dir = math_normalize(player_dir);
+                    enemy->enemy_data.forced_movement = true;
+                    enemy->enemy_data.stopped = false;
+
+                    v2 loc = V2(300, 100);
+                    enemy->enemy_data.target_loc = loc;
                 }
-                double angle = atan2(player_dir.y, player_dir.x);
-                enemy->enemy_data.atks[3].arc_center = angle;
-                do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[3], dt);
+
+                if (enemy->enemy_data.stopped)
+                {
+                    v2 player_dir = game->player.pos - enemy->pos;
+                    if (is_null_vector(player_dir))
+                    {
+                        player_dir = math_normalize(player_dir);
+                    }
+                    double angle = atan2(player_dir.y, player_dir.x);
+                    enemy->enemy_data.atks[3].arc_center = angle;
+                    do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[3], dt);
+
+                    // only once
+                    do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[9], dt);
+                }
             }
-        }
 
-        if (enemy->enemy_data.time_since_fight_started > 23 &&
-            enemy->enemy_data.time_since_fight_started < 27)
-        {
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[6], dt);
-        }
+            if (enemy->enemy_data.time_since_fight_started > 23 &&
+                    enemy->enemy_data.time_since_fight_started < 27)
+            {
+                do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[6], dt);
+            }
 
-        if (enemy->enemy_data.time_since_fight_started > 27)
-        {
-            enemy->enemy_data.forced_movement = false;
+            if (enemy->enemy_data.time_since_fight_started > 27)
+            {
+                enemy->enemy_data.forced_movement = false;
+            }
         }
 
         if (enemy->enemy_data.time_since_fight_started > 30 &&
             enemy->enemy_data.time_since_fight_started < 34)
         {
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[7], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[7], dt);
         }
 
         if (enemy->enemy_data.time_since_fight_started > 31 &&
             enemy->enemy_data.time_since_fight_started < 35)
         {
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[4], dt);
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[5], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[4], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[5], dt);
         }
 
         if (enemy->enemy_data.time_since_fight_started > 35)
         {
-            do_circular_atk(game->particles, enemy->type, &enemy->enemy_data.atks[8], dt);
+            do_atk(game->particles, enemy->type, &enemy->enemy_data.atks[8], dt);
         }
     }
 
@@ -356,29 +406,29 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
             pos.x = game->player.pos.x - 8;
             pos.y = game->player.pos.y;
             particle_t *particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
-                                                          shot_speed, accel,
-                                                          BALL_IMG_PATH, shot_w, shot_h, color);
+                                                          shot_speed, accel, BALL_IMG_PATH,
+                                                          shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
 
             pos.x = game->player.pos.x - 4;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
                                               shot_speed, accel,
-                                              BALL_IMG_PATH, shot_w, shot_h, color);
+                                              BALL_IMG_PATH, shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
 
             pos.x = game->player.pos.x + 4;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
                                               shot_speed, accel,
-                                              BALL_IMG_PATH, shot_w, shot_h, color);
+                                              BALL_IMG_PATH, shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
 
             pos.x = game->player.pos.x + 8;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
                                               shot_speed, accel,
-                                              BALL_IMG_PATH, shot_w, shot_h, color);
+                                              BALL_IMG_PATH, shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
         }
 

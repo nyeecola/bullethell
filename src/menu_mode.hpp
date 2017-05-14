@@ -1,4 +1,4 @@
-typedef struct
+struct menu_mode_t
 {
 
-} menu_mode_t;
+};

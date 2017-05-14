@@ -1,18 +1,20 @@
 ### TODO ###
 
-- Add hero's special attacks
+- Add hero's special attack
 - Create score system
 - Create start menu
 - Create pause menu                                        (in-progress)
 - Add audio system
 - Add proper sprites
 - Add animations for hero's movements
+- Add better text support
+- Finish fight system
 - Add support for more attacks
     - lasers
     - rotating attacks (orbitals)
 - Add hero's slowmo
 - Add powerups for hero's basic attacks
-- Add support for software rendering (stop using msaa)
+- Add support for software rendering (stop using MSAA)
 - Stop using assert on malloc's result (use exit(1))
 
 // for optimizations

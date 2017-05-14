@@ -1,12 +1,12 @@
-typedef struct
+struct v2
 {
     double x;
     double y;
-} v2;
+};
 
-typedef struct
+struct v3
 {
     double x;
     double y;
     double z;
-} v3;
+};

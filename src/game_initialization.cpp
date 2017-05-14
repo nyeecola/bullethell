@@ -62,7 +62,6 @@ game_mode_t *initialize_game_mode()
                 atk.angle_step = 0.0;
                 atk.particle_speed = 250;
                 atk.particle_accel = V2(0, 0);
-                atk.particle_orbit_center = V2(0, 0);
                 game->enemy.enemy_data.atks[0] = atk;
             }
 
@@ -81,7 +80,6 @@ game_mode_t *initialize_game_mode()
                 atk.angle_step = 0.006;
                 atk.particle_speed = 150;
                 atk.particle_accel = V2(0, 0);
-                atk.particle_orbit_center = V2(0, 0);
 
                 atk.rotation_type = ROTATE_CW;
                 atk.particle_color = V3(180, 180, 255);
@@ -133,7 +131,6 @@ game_mode_t *initialize_game_mode()
                 atk.angle_step = 0.0;
                 atk.particle_speed = 500;
                 atk.particle_accel = V2(0, 0);
-                atk.particle_orbit_center = V2(0, 0);
                 game->enemy.enemy_data.atks[3] = atk;
             }
 
@@ -152,7 +149,6 @@ game_mode_t *initialize_game_mode()
                 atk.angle_step = 0.001;
                 atk.particle_speed = 85;
                 atk.particle_accel = V2(0, 0);
-                atk.particle_orbit_center = V2(0, 0);
                 game->enemy.enemy_data.atks[6] = atk;
             }
 
@@ -171,7 +167,6 @@ game_mode_t *initialize_game_mode()
                 atk.angle_step = 0.0;
                 atk.particle_speed = 200;
                 atk.particle_accel = V2(0, 0);
-                atk.particle_orbit_center = V2(0, 0);
                 game->enemy.enemy_data.atks[7] = atk;
             }
 
@@ -190,12 +185,32 @@ game_mode_t *initialize_game_mode()
                 atk.angle_step = 0.02;
                 atk.particle_speed = 70;
                 atk.particle_accel = V2(0, 0);
-                atk.particle_orbit_center = V2(0, 0);
                 game->enemy.enemy_data.atks[8] = atk;
+            }
+
+            // slow orbitals from enemy
+            {
+                atk_pattern_t atk = {};
+                atk.spawn_rate = 0;
+                atk.spawn_limit = 1;
+                atk.time_since_last_spawn = atk.spawn_rate;
+                atk.particles_per_spawn = 18;
+                atk.arc_size = PI * 2;
+                atk.particle_image = BALL_IMG_PATH;
+                atk.particle_width = 24;
+                atk.particle_height = 24;
+                atk.particle_color = V3(140, 255, 140);
+                atk.particle_accel = V2(0, 0);
+                atk.particle_orbit_center = &game->enemy.pos;
+                atk.particle_orbit_radius = 200;
+                atk.particle_orbit_speed = 1.2;
+                atk.particle_orbit_delta_radius = 0;
+                atk.particle_time_to_live = 7;
+                game->enemy.enemy_data.atks[9] = atk;
             }
         }
     }
-    
+
     return game;
 }
 
