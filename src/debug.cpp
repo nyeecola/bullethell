@@ -2,10 +2,8 @@ static TTF_Font *global_debug_font = 0;
 static SDL_Texture *global_glyphs[256] = {};
 static SDL_Renderer *global_debug_renderer;
 
-void create_texture_for_glyphs(int index)
+void create_texture_for_glyphs(u16 index)
 {
-    char str[2] = {(char) index, 0};
-
     // TODO: allow different font colors
     SDL_Color white;
     white.r = 255;
@@ -14,7 +12,7 @@ void create_texture_for_glyphs(int index)
     white.a = 255;
 
     SDL_Surface *surface = 0;
-    if (!(surface = TTF_RenderText_Solid(global_debug_font, str, white)))
+    if (!(surface = TTF_RenderGlyph_Blended(global_debug_font, index, white)))
     {
         puts("Failed to create surface from text.");
         printf("Error: %s\n", TTF_GetError());
@@ -55,44 +53,44 @@ void debug_initialize_text(renderer_t *renderer)
     // create a texture for each glyph
     for (int i = 0; i < 10; i++)
     {
-        create_texture_for_glyphs('0' + i);
+        create_texture_for_glyphs((u16) ('0' + i));
     }
     for (int i = 0; i < 26; i++)
     {
-        create_texture_for_glyphs('a' + i);
+        create_texture_for_glyphs((u16) ('a' + i));
     }
     for (int i = 0; i < 26; i++)
     {
-        create_texture_for_glyphs('A' + i);
+        create_texture_for_glyphs((u16) ('A' + i));
     }
-    create_texture_for_glyphs(' ');
-    create_texture_for_glyphs('-');
-    create_texture_for_glyphs(':');
-    create_texture_for_glyphs(';');
-    create_texture_for_glyphs(',');
-    create_texture_for_glyphs('.');
-    create_texture_for_glyphs('!');
-    create_texture_for_glyphs('?');
-    create_texture_for_glyphs('(');
-    create_texture_for_glyphs(')');
-    create_texture_for_glyphs('{');
-    create_texture_for_glyphs('}');
-    create_texture_for_glyphs('[');
-    create_texture_for_glyphs(']');
-    create_texture_for_glyphs('+');
-    create_texture_for_glyphs('-');
-    create_texture_for_glyphs('*');
-    create_texture_for_glyphs('/');
-    create_texture_for_glyphs('\\');
-    create_texture_for_glyphs('&');
-    create_texture_for_glyphs('#');
-    create_texture_for_glyphs('@');
-    create_texture_for_glyphs('"');
-    create_texture_for_glyphs('\'');
-    create_texture_for_glyphs('%');
-    create_texture_for_glyphs('$');
-    create_texture_for_glyphs('=');
-    create_texture_for_glyphs('_');
+    create_texture_for_glyphs((u16) ' ');
+    create_texture_for_glyphs((u16) '-');
+    create_texture_for_glyphs((u16) ':');
+    create_texture_for_glyphs((u16) ';');
+    create_texture_for_glyphs((u16) ',');
+    create_texture_for_glyphs((u16) '.');
+    create_texture_for_glyphs((u16) '!');
+    create_texture_for_glyphs((u16) '?');
+    create_texture_for_glyphs((u16) '(');
+    create_texture_for_glyphs((u16) ')');
+    create_texture_for_glyphs((u16) '{');
+    create_texture_for_glyphs((u16) '}');
+    create_texture_for_glyphs((u16) '[');
+    create_texture_for_glyphs((u16) ']');
+    create_texture_for_glyphs((u16) '+');
+    create_texture_for_glyphs((u16) '-');
+    create_texture_for_glyphs((u16) '*');
+    create_texture_for_glyphs((u16) '/');
+    create_texture_for_glyphs((u16) '\\');
+    create_texture_for_glyphs((u16) '&');
+    create_texture_for_glyphs((u16) '#');
+    create_texture_for_glyphs((u16) '@');
+    create_texture_for_glyphs((u16) '"');
+    create_texture_for_glyphs((u16) '\'');
+    create_texture_for_glyphs((u16) '%');
+    create_texture_for_glyphs((u16) '$');
+    create_texture_for_glyphs((u16) '=');
+    create_texture_for_glyphs((u16) '_');
 }
 
 // Draws text on x,y coordinates.

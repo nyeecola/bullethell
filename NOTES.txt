@@ -5,14 +5,15 @@
 - Create start menu
 - Create pause menu                                        (in-progress)
 - Add audio system
-- Add better sprites
+- Add proper sprites
 - Add animations for hero's movements
-- Add support for more attacks (including lasers)
+- Add support for more attacks
+    - lasers
+    - rotating attacks (orbitals)
 - Add hero's slowmo
 - Add powerups for hero's basic attacks
 - Add support for software rendering (stop using msaa)
-- Find out why the font is shit
-- Stop using asser on malloc's result (instead use exit(1))
+- Stop using assert on malloc's result (use exit(1))
 
 // for optimizations
 - Create a linked list
