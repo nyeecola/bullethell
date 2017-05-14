@@ -58,7 +58,7 @@ int main(int, char *[])
     glEnable(GL_MULTISAMPLE_ARB);
 
     // create renderer
-#if 1
+#if 0
     SDL_Renderer* sdl_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 #else
     SDL_Renderer* sdl_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);

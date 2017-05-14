@@ -1,17 +1,18 @@
 ### TODO ###
 
-- Add hero's special attack
-- Create score system
 - Create start menu
 - Create pause menu                                        (in-progress)
-- Add audio system
 - Add proper sprites
+- Add audio system
 - Add animations for hero's movements
 - Add better text support
 - Finish fight system
+- Create score system
+- Add hero's special attack
+- Add support for different screen sizes (no-stretching)
 - Add support for more attacks
     - lasers
-    - rotating attacks (orbitals)
+    - rotating attacks (orbitals)                          (in-progress)
 - Add hero's slowmo
 - Add powerups for hero's basic attacks
 - Add support for software rendering (stop using MSAA)
