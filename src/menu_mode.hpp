@@ -2,6 +2,9 @@ enum options_e
 {
     OPTION_START = 0,
     OPTION_SETTINGS,
+
+    OPTION_BLANK,
+
     OPTION_EXIT,
 
     OPTION_COUNT

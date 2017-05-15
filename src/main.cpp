@@ -155,6 +155,10 @@ int main(int, char *[])
                         if (event.key.keysym.scancode == SDL_SCANCODE_UP)
                         {
                             game_state->menu->selected_option--;
+                            if (game_state->menu->selected_option == OPTION_BLANK)
+                            {
+                                game_state->menu->selected_option--;
+                            }
                             if (game_state->menu->selected_option == -1)
                             {
                                 game_state->menu->selected_option = OPTION_COUNT - 1;
@@ -163,6 +167,10 @@ int main(int, char *[])
                         else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
                         {
                             game_state->menu->selected_option++;
+                            if (game_state->menu->selected_option == OPTION_BLANK)
+                            {
+                                game_state->menu->selected_option++;
+                            }
                             if (game_state->menu->selected_option == OPTION_COUNT)
                             {
                                 game_state->menu->selected_option = 0;

@@ -283,37 +283,55 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
         SDL_SetRenderDrawColor(renderer->sdl, 170, 20, 20, 255);
         SDL_RenderClear(renderer->sdl);
 
-        for (int i = 0; i < OPTION_COUNT; i++)
+        // render options box
         {
-            const char *text;
-            switch (i)
+            SDL_Rect box = {
+                MENU_BOX_START_X,
+                MENU_BOX_START_Y,
+                MENU_BOX_END_X - MENU_BOX_START_X,
+                MENU_BOX_END_Y - MENU_BOX_START_Y
+            };
+
+            SDL_SetRenderDrawBlendMode(renderer->sdl, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer->sdl, 0, 0, 0, MENU_BOX_ALPHA);
+            SDL_RenderFillRect(renderer->sdl, &box);
+            SDL_SetRenderDrawBlendMode(renderer->sdl, SDL_BLENDMODE_NONE);
+        }
+
+        // render options
+        {
+            for (int i = 0; i < OPTION_COUNT; i++)
             {
-                case OPTION_START:
-                    text = "Start";
-                    break;
-                case OPTION_SETTINGS:
-                    text = "Settings";
-                    break;
-                case OPTION_EXIT:
-                    text = "Exit";
-                    break;
-                default:
-                    text = "";
-                    break;
+                const char *text;
+                switch (i)
+                {
+                    case OPTION_START:
+                        text = "Start";
+                        break;
+                    case OPTION_SETTINGS:
+                        text = "Settings";
+                        break;
+                    case OPTION_EXIT:
+                        text = "Exit";
+                        break;
+                    default:
+                        text = "";
+                        break;
+                }
+
+                v3 color;
+                if (menu->selected_option == i) color = {255, 255, 0};
+                else color = {255, 255, 255};
+
+                u8 alpha;
+                if (menu->selected_option == i) alpha = (u8) (MENU_FONT_GLOW_FIXED +
+                                                              menu->alpha_selected_option);
+                else alpha = 255;
+
+                draw_centralized_text(text, renderer, fonts[2], MENU_START_X,
+                                      MENU_START_Y + i * MENU_SPACING, MENU_END_X,
+                                      color, alpha);
             }
-
-            v3 color;
-            if (menu->selected_option == i) color = {255, 255, 0};
-            else color = {255, 255, 255};
-
-            u8 alpha;
-            if (menu->selected_option == i) alpha = (u8) (MENU_FONT_GLOW_FIXED +
-                                                          menu->alpha_selected_option);
-            else alpha = 255;
-
-            draw_centralized_text(text, renderer, fonts[2], MENU_START_X,
-                                  MENU_START_Y + i * MENU_SPACING, MENU_END_X,
-                                  color, alpha);
         }
     }
 }
