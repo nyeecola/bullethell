@@ -120,16 +120,43 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
     else if (game_state->type == MENU_MODE)
     {
         assert(game_state->menu);
+
+        menu_mode_t *menu = game_state->menu;
+
+        if (menu->alpha_increasing)
+        {
+            menu->alpha_selected_option += (int) (MENU_FONT_GLOW_RATE * dt);
+        }
+        else
+        {
+            menu->alpha_selected_option -= (int) (MENU_FONT_GLOW_RATE * dt);
+        }
+
+        if (menu->alpha_selected_option > 255 - MENU_FONT_GLOW_FIXED)
+        {
+            menu->alpha_selected_option = 255 - MENU_FONT_GLOW_FIXED;
+            menu->alpha_increasing = false;
+        }
+        else if (menu->alpha_selected_option < 0)
+        {
+            menu->alpha_selected_option = 0;
+            menu->alpha_increasing = true;
+        }
+    }
+    else if (game_state->type == PAUSE_MODE)
+    {
+        assert(game_state->menu);
     }
 }
 
-void game_state_render(game_state_t *game_state, renderer_t *renderer)
+void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *renderer)
 {
     assert(game_state);
     assert(renderer);
     assert(renderer->sdl);
 
     // render game (even if it is currently paused)
+    if (game_state->type == GAME_MODE || game_state->type == PAUSE_MODE)
     {
         assert(game_state->game);
         game_mode_t *game = game_state->game;
@@ -239,11 +266,55 @@ void game_state_render(game_state_t *game_state, renderer_t *renderer)
             rect.y = PLAYER_HP_BAR_Y;
             display_image(renderer, HP_IMG_PATH, &rect, 0, V3(255, 0, 0));
         }
-    }
 
-    if (game_state->type == MENU_MODE)
+        if (game_state->type == PAUSE_MODE)
+        {
+            //assert(game_state->pause);
+            // TODO
+        }
+    }
+    else if (game_state->type == MENU_MODE)
     {
         assert(game_state->menu);
+
+        menu_mode_t *menu = game_state->menu;
+
+        // render background
+        SDL_SetRenderDrawColor(renderer->sdl, 170, 20, 20, 255);
+        SDL_RenderClear(renderer->sdl);
+
+        for (int i = 0; i < OPTION_COUNT; i++)
+        {
+            const char *text;
+            switch (i)
+            {
+                case OPTION_START:
+                    text = "Start";
+                    break;
+                case OPTION_SETTINGS:
+                    text = "Settings";
+                    break;
+                case OPTION_EXIT:
+                    text = "Exit";
+                    break;
+                default:
+                    text = "";
+                    break;
+            }
+
+            v3 color;
+            if (menu->selected_option == i) color = {255, 255, 0};
+            else color = {255, 255, 255};
+
+            u8 alpha;
+            if (menu->selected_option == i) alpha = (u8) (MENU_FONT_GLOW_FIXED +
+                                                          menu->alpha_selected_option);
+            else alpha = 255;
+
+            draw_centralized_text(text, renderer, fonts[2], MENU_START_X,
+                                  MENU_START_Y + i * MENU_SPACING, MENU_END_X,
+                                  color, alpha);
+        }
     }
 }
 

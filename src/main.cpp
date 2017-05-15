@@ -15,18 +15,19 @@
 #include <cmath>
 #include <cassert>
 
+#include "main.hpp"
 #include "bin_heap.hpp"
 #include "constants.hpp"
 #include "math.hpp"
 #include "game_mode.hpp"
 #include "menu_mode.hpp"
 #include "game_state.hpp"
-#include "main.hpp"
+#include "text.hpp"
 
 #include "bin_heap.cpp"
 #include "math.cpp"
 #include "utils.cpp"
-#include "debug.cpp"
+#include "text.cpp"
 #include "menu_mode.cpp"
 #include "game_initialization.cpp"
 #include "game_mode.cpp"
@@ -73,17 +74,24 @@ int main(int, char *[])
 
     // initialization
     // TODO: set seed for RNG
-    debug_initialize_text(&renderer);
+    font_t *fonts[] =
+    {
+        initialize_font(&renderer, FONT_PATH, 20),
+        initialize_font(&renderer, FONT_PATH, 26),
+        initialize_font(&renderer, FONT_PATH, 32),
+    };
+    // TODO: error check font initialization
     input_t *input = initialize_input();
     game_state_t *game_state = (game_state_t *) calloc(1, sizeof(*game_state));
     assert(game_state);
     game_state->game = initialize_game_mode();
     game_state->menu = initialize_menu_mode();
-    game_state->type = GAME_MODE;
-    
+    //game_state->pause = initialize_pause_mode();
+    game_state->type = MENU_MODE;
+
     // DEBUG
     // TODO: maybe make this hero's special atk?
-    /* 
+    /*
     particle_t *p = spawn_particle_orbiting(&game_state->game->player.pos, 50, 0, 0,
                                             ENTITY_PLAYER, 6, BALL_IMG_PATH, 80, 80,
                                             V3(255, 255, 255));
@@ -104,7 +112,7 @@ int main(int, char *[])
                                 BALL_IMG_PATH, 80, 80, V3(255, 255, 255));
     game_state->game->particles->push_back(p);
     */
-    
+
     // main loop
     bool running = true;
     u64 current_counter = SDL_GetPerformanceCounter();
@@ -125,16 +133,56 @@ int main(int, char *[])
                     input->mouse.x = event.motion.x;
                     input->mouse.y = event.motion.y;
                     break;
-                case SDL_KEYDOWN:
+                case SDL_KEYDOWN: // TODO: find a better way to handle keydowns and keyups
                     if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                     {
-                        if (game_state->type == MENU_MODE)
+                        if (game_state->type == PAUSE_MODE)
                         {
                             game_state->type = GAME_MODE;
                         }
                         else if (game_state->type == GAME_MODE)
                         {
-                            game_state->type = MENU_MODE;
+                            game_state->type = PAUSE_MODE;
+                        }
+                        else if (game_state->type == MENU_MODE)
+                        {
+                            running = false;
+                        }
+                    }
+
+                    else if (game_state->type == MENU_MODE)
+                    {
+                        if (event.key.keysym.scancode == SDL_SCANCODE_UP)
+                        {
+                            game_state->menu->selected_option--;
+                            if (game_state->menu->selected_option == -1)
+                            {
+                                game_state->menu->selected_option = OPTION_COUNT - 1;
+                            }
+                        }
+                        else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+                        {
+                            game_state->menu->selected_option++;
+                            if (game_state->menu->selected_option == OPTION_COUNT)
+                            {
+                                game_state->menu->selected_option = 0;
+                            }
+                        }
+                        else if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
+                        {
+                            switch (game_state->menu->selected_option)
+                            {
+                                case OPTION_START:
+                                    game_state->type = GAME_MODE;
+                                    break;
+                                case OPTION_SETTINGS:
+                                    // TODO
+                                    break;
+                                case OPTION_EXIT:
+                                    running = false;
+                                    break;
+                                default: break;
+                            }
                         }
                     }
                     break;
@@ -152,8 +200,8 @@ int main(int, char *[])
         game_state_update(game_state, input, delta_time);
 
         // render frame
-        game_state_render(game_state, &renderer);
-        debug_draw_fps(delta_time);
+        game_state_render(game_state, fonts, &renderer);
+        draw_fps(delta_time, &renderer, fonts[0]);
         SDL_RenderPresent(renderer.sdl);
     }
 

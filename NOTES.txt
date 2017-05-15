@@ -1,11 +1,10 @@
 ### TODO ###
 
-- Create start menu
+- Create start menu                                        (in-progress)
 - Create pause menu                                        (in-progress)
 - Add proper sprites
 - Add audio system
 - Add animations for hero's movements
-- Add better text support
 - Finish fight system
 - Create score system
 - Add hero's special attack
@@ -14,10 +13,12 @@
     - lasers
     - rotating attacks (orbitals)                          (in-progress)
 - Add hero's slowmo
+- Make ai's actions deterministic
 - Add powerups for hero's basic attacks
 - Add support for software rendering (stop using MSAA)
 - Stop using assert on malloc's result (use exit(1))
 
 // for optimizations
+- Create profiler (both for allocations and for performance)
 - Create a linked list
 - Create a hash set

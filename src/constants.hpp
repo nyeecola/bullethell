@@ -5,7 +5,6 @@
 #define DEFAULT_SCREEN_HEIGHT 800
 
 // DEBUG TEXT
-#define FONT_SIZE 20
 #define FONT_PATH "assets/Inconsolata-Bold.ttf"
 
 // TEST ASSETS
@@ -17,6 +16,12 @@
 #define HP_PER_HEART 100
 #define HP_UNIT_SIZE 24
 #define ENEMY_HP_BAR_Y 0
+#define MENU_SPACING 40
+#define MENU_START_X 200
+#define MENU_END_X DEFAULT_SCREEN_WIDTH - MENU_START_X
+#define MENU_START_Y 350
+#define MENU_FONT_GLOW_RATE 400
+#define MENU_FONT_GLOW_FIXED 155
 
 // PLAYER
 // in seconds
