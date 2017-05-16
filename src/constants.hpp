@@ -11,6 +11,9 @@
 #define BALL_IMG_PATH "assets/ball.png"
 #define HP_IMG_PATH "assets/life.png"
 #define HP_IMG_SIZE 24
+#define SHIP_IMG_PATH "assets/ship.png"
+#define PLAYER_SHOT_PATH "assets/default_shot.png"
+#define MENU_BOX_PATH "assets/menu_box.png"
 
 // LAYOUT
 #define HP_PER_HEART 100

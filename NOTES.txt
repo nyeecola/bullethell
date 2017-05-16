@@ -1,17 +1,18 @@
 ### TODO ###
 
-- Create start menu                                        (in-progress)
-- Create pause menu                                        (in-progress)
-- Add proper sprites
+- Create start menu                                           (in-progress)
+- Create pause menu                                           (in-progress)
+- Add proper sprites                                          (in-progress)
 - Add audio system
-- Add animations for hero's movements
+- Add support for "idle" animations
+- Add gfx particles
 - Finish fight system
 - Create score system
 - Add hero's special attack
 - Add support for different screen sizes (no-stretching)
 - Add support for more attacks
     - lasers
-    - rotating attacks (orbitals)                          (in-progress)
+    - rotating attacks (orbitals)                             (in-progress)
 - Add hero's slowmo
 - Make ai's actions deterministic
 - Add powerups for hero's basic attacks

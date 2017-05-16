@@ -173,18 +173,14 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
         SDL_Rect rect;
 
         // render player
-        rect.x = (int) round(game->player.pos.x - game->player.w / 2);
-        rect.y = (int) round(game->player.pos.y - game->player.h / 2);
-        rect.w = (int) round(game->player.w);
-        rect.h = (int) round(game->player.h);
-        display_image(renderer, game->player.image_path, &rect, 0, V3(255, 255, 255));
+        render_entity(renderer, game->player);
 
         // render enemy
         rect.x = (int) round(game->enemy.pos.x - game->enemy.w / 2);
         rect.y = (int) round(game->enemy.pos.y - game->enemy.h / 2);
         rect.w = (int) round(game->enemy.w);
         rect.h = (int) round(game->enemy.h);
-        display_image(renderer, game->enemy.image_path, &rect, 0, V3(255, 255, 255));
+        display_image(renderer, game->enemy.image_path, &rect, 0, V3(255, 255, 255), 255, 0, 0);
 
         // render particles
         std::list<particle_t *>::iterator it, end;
@@ -197,7 +193,7 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
             rect.w = (int) round(particle->w);
             rect.h = (int) round(particle->h);
 
-            display_image(renderer, particle->image_path, &rect, 0, particle->color);
+            display_image(renderer, particle->image_path, &rect, 0, particle->color, 255, 0, 0);
         }
 
         // render player special attacks
@@ -241,7 +237,7 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
             int hp_in_heart = game->enemy.health - HP_PER_HEART * (i - 1);
             if (hp_in_heart > HP_PER_HEART)
             {
-                display_image(renderer, HP_IMG_PATH, &rect, 0, V3(255, 255, 255));
+                display_image(renderer, HP_IMG_PATH, &rect, 0, V3(255, 255, 255), 255, 0, 0);
             }
             else
             {
@@ -252,7 +248,7 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
                 source.x = HP_IMG_SIZE - source.w;
                 rect.x += HP_IMG_SIZE - source.w;
                 rect.w = source.w;
-                display_image(renderer, HP_IMG_PATH, &rect, &source, V3(255, 255, 255));
+                display_image(renderer, HP_IMG_PATH, &rect, &source, V3(255, 255, 255), 255, 0, 0);
             }
         }
 
@@ -264,7 +260,7 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
             // TODO: change to current screen width
             rect.x = DEFAULT_SCREEN_WIDTH - HP_UNIT_SIZE * i;
             rect.y = PLAYER_HP_BAR_Y;
-            display_image(renderer, HP_IMG_PATH, &rect, 0, V3(255, 0, 0));
+            display_image(renderer, HP_IMG_PATH, &rect, 0, V3(255, 0, 0), 255, 0, 0);
         }
 
         if (game_state->type == PAUSE_MODE)
@@ -292,10 +288,15 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
                 MENU_BOX_END_Y - MENU_BOX_START_Y
             };
 
+            display_image(renderer, MENU_BOX_PATH, &box, 0, V3(255, 255, 255),
+                          MENU_BOX_ALPHA, 0, 0);
+
+            /*
             SDL_SetRenderDrawBlendMode(renderer->sdl, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(renderer->sdl, 0, 0, 0, MENU_BOX_ALPHA);
             SDL_RenderFillRect(renderer->sdl, &box);
             SDL_SetRenderDrawBlendMode(renderer->sdl, SDL_BLENDMODE_NONE);
+            */
         }
 
         // render options

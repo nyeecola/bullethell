@@ -20,8 +20,9 @@ input_t *initialize_input()
 // verifies if image was already renderer
 // if not, render and display it
 // if yes, just display it
-// TODO: verify if this is too slow (because of the conversion to std::string every call
-void display_image(renderer_t *renderer, const char *char_path, SDL_Rect *dest, SDL_Rect *source, v3 color)
+// TODO: check if this is too slow (because of the conversion to std::string every call
+void display_image(renderer_t *renderer, const char *char_path, SDL_Rect *dest, SDL_Rect *source,
+                   v3 color, int alpha, bool flip_x, bool flip_y)
 {
     std::string path(char_path);
     if (!renderer->images.count(path))
@@ -30,8 +31,13 @@ void display_image(renderer_t *renderer, const char *char_path, SDL_Rect *dest, 
         renderer->images[path] = tex;
     }
 
+    SDL_RendererFlip flip = (SDL_RendererFlip) 0;
+    if (flip_x) flip = (SDL_RendererFlip) (flip | SDL_FLIP_HORIZONTAL);
+    if (flip_y) flip = (SDL_RendererFlip) (flip | SDL_FLIP_VERTICAL);
+
     SDL_SetTextureColorMod(renderer->images[char_path], (u8) color.x, (u8) color.y, (u8) color.z);
-    SDL_RenderCopy(renderer->sdl, renderer->images[char_path], source, dest);
+    SDL_SetTextureAlphaMod(renderer->images[char_path], (u8) alpha);
+    SDL_RenderCopyEx(renderer->sdl, renderer->images[char_path], source, dest, 0, 0, flip);
 }
 
 inline bool test_point_in_circle(v2 point, v2 center, double radius)

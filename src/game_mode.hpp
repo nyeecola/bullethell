@@ -80,9 +80,13 @@ struct entity_t
     double speed;
     // TODO: consider adding velocity and acceleration here (instead of speed)
 
+    // TODO: isolate these in a `image_t` struct
     const char *image_path;
     int w;
     int h;
+    int frame;
+    bool flip_x;
+    bool flip_y;
 
 	// should be a value between 0 and 1000
     int health;

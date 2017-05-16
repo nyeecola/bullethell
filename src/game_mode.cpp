@@ -347,25 +347,63 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
             speed *= 0.6;
         }
         v2 offset_dir = {0, 0};
+        game->player.frame = 2;
+        game->player.flip_x = false;
+        game->player.flip_y = false;
         if (input->keys_pressed[SDL_SCANCODE_UP])
         {
             offset_dir.y = -1;
+            if (!input->keys_pressed[SDL_SCANCODE_RSHIFT] &&
+                !input->keys_pressed[SDL_SCANCODE_LSHIFT])
+            {
+                game->player.frame = 4;
+            }
         }
         if (input->keys_pressed[SDL_SCANCODE_DOWN])
         {
             offset_dir.y = 1;
+            game->player.frame = 0;
         }
         if (input->keys_pressed[SDL_SCANCODE_LEFT])
         {
             offset_dir.x = -1;
+            if (game->player.frame == 4)
+            {
+                game->player.frame = 5;
+            }
+            if (game->player.frame == 2)
+            {
+                game->player.frame = 3;
+            }
+            if (game->player.frame == 0)
+            {
+                game->player.frame = 1;
+            }
+            game->player.flip_x = true;
         }
         if (input->keys_pressed[SDL_SCANCODE_RIGHT])
         {
             offset_dir.x = 1;
+            if (game->player.frame == 4)
+            {
+                game->player.frame = 5;
+            }
+            if (game->player.frame == 2)
+            {
+                game->player.frame = 3;
+            }
+            if (game->player.frame == 0)
+            {
+                game->player.frame = 1;
+            }
         }
         if (!is_null_vector(offset_dir))
         {
             offset_dir = math_normalize(offset_dir);
+        }
+        else
+        {
+            game->player.frame = 2;
         }
         game->player.pos += offset_dir * speed * dt;
 
@@ -397,38 +435,38 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
             v2 dir = V2(0, -1);
             v2 accel = V2(0, 0);
             int shot_speed = 600;
-            int shot_w = 12;
-            int shot_h = 38;
+            int shot_w = 4;
+            int shot_h = 14;
             v3 color = V3(255, 255, 255);
 
             v2 pos;
 
-            pos.x = game->player.pos.x - 8;
+            pos.x = game->player.pos.x - 7;
             pos.y = game->player.pos.y;
             particle_t *particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
-                                                          shot_speed, accel, BALL_IMG_PATH,
+                                                          shot_speed, accel, PLAYER_SHOT_PATH,
                                                           shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
 
-            pos.x = game->player.pos.x - 4;
+            /*pos.x = game->player.pos.x - 4;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
                                               shot_speed, accel,
-                                              BALL_IMG_PATH, shot_w, shot_h, color, 0);
-            game->particles->push_back(particle);
+                                              PLAYER_SHOT_PATH, shot_w, shot_h, color, 0);
+            game->particles->push_back(particle);*/
 
-            pos.x = game->player.pos.x + 4;
+            /*pos.x = game->player.pos.x + 4;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
                                               shot_speed, accel,
-                                              BALL_IMG_PATH, shot_w, shot_h, color, 0);
-            game->particles->push_back(particle);
+                                              PLAYER_SHOT_PATH, shot_w, shot_h, color, 0);
+            game->particles->push_back(particle);*/
 
-            pos.x = game->player.pos.x + 8;
+            pos.x = game->player.pos.x + 7;
             pos.y = game->player.pos.y;
             particle = spawn_particle_towards(pos, dir, ENTITY_PLAYER,
                                               shot_speed, accel,
-                                              BALL_IMG_PATH, shot_w, shot_h, color, 0);
+                                              PLAYER_SHOT_PATH, shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
         }
 
@@ -436,5 +474,23 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
     }
 
     // TODO: special attacks
+}
+
+void render_entity(renderer_t *renderer, entity_t entity)
+{
+    SDL_Rect dest;
+    dest.x = (int) round(entity.pos.x - entity.w / 2);
+    dest.y = (int) round(entity.pos.y - entity.h / 2);
+    dest.w = entity.w;
+    dest.h = entity.h;
+
+    SDL_Rect source;
+    source.x = entity.frame * entity.w;
+    source.y = 0;
+    source.w = entity.w;
+    source.h = entity.h;
+
+    display_image(renderer, entity.image_path, &dest, &source, V3(255, 255, 255),
+                  255, entity.flip_x, entity.flip_y);
 }
 

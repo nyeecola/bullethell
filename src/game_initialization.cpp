@@ -13,9 +13,9 @@ game_mode_t *initialize_game_mode()
     // keyboard controlled ball
     game->player = {};
     game->player.type = ENTITY_PLAYER;
-    game->player.image_path = BALL_IMG_PATH;
+    game->player.image_path = SHIP_IMG_PATH;
     game->player.w = 30;
-    game->player.h = 42;
+    game->player.h = 30;
     game->player.pos = V2(300, 700);
     game->player.speed = 200;
     game->player.health = 3;
