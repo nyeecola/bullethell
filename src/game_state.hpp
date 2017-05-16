@@ -12,5 +12,5 @@ struct game_state_t
     //       too much memory
     game_mode_t *game;
     menu_mode_t *menu;
-    //pause_mode_t *pause;
+    pause_mode_t *pause;
 };

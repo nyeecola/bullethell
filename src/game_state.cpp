@@ -146,6 +146,28 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
     else if (game_state->type == PAUSE_MODE)
     {
         assert(game_state->menu);
+
+        pause_mode_t *pause = game_state->pause;
+
+        if (pause->alpha_increasing)
+        {
+            pause->alpha_selected_option += (int) (MENU_FONT_GLOW_RATE * dt);
+        }
+        else
+        {
+            pause->alpha_selected_option -= (int) (MENU_FONT_GLOW_RATE * dt);
+        }
+
+        if (pause->alpha_selected_option > 255 - MENU_FONT_GLOW_FIXED)
+        {
+            pause->alpha_selected_option = 255 - MENU_FONT_GLOW_FIXED;
+            pause->alpha_increasing = false;
+        }
+        else if (pause->alpha_selected_option < 0)
+        {
+            pause->alpha_selected_option = 0;
+            pause->alpha_increasing = true;
+        }
     }
 }
 
@@ -265,8 +287,61 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
 
         if (game_state->type == PAUSE_MODE)
         {
-            //assert(game_state->pause);
-            // TODO
+            assert(game_state->pause);
+
+            pause_mode_t *pause = game_state->pause;
+
+            // render options box
+            {
+                SDL_Rect box = {
+                    PAUSE_BOX_START_X,
+                    PAUSE_BOX_START_Y,
+                    PAUSE_BOX_END_X - PAUSE_BOX_START_X,
+                    PAUSE_BOX_END_Y - PAUSE_BOX_START_Y
+                };
+
+                display_image(renderer, MENU_BOX_PATH, &box, 0, V3(255, 255, 255),
+                        PAUSE_BOX_ALPHA, 0, 0);
+            }
+
+            // render options
+            {
+                for (int i = 0; i < OPTION_COUNT; i++)
+                {
+                    if (i != OPTION_START && i != OPTION_EXIT) continue;
+
+                    const char *text;
+                    int y;
+                    switch (i)
+                    {
+                        case OPTION_START:
+                            text = "Resume";
+                            y = PAUSE_START_Y;
+                            break;
+                        case OPTION_EXIT:
+                            text = "Exit";
+                            y = PAUSE_START_Y + 4 * MENU_SPACING / 3;
+                            break;
+                        default:
+                            assert(0);
+                            break;
+                    }
+
+                    v3 color;
+                    if (pause->selected_option == i) color = {255, 255, 0};
+                    else color = {255, 255, 255};
+
+                    u8 alpha;
+                    if (pause->selected_option == i)
+                    {
+                        alpha = (u8) (MENU_FONT_GLOW_FIXED + pause->alpha_selected_option);
+                    }
+                    else alpha = 255;
+
+                    draw_centralized_text(text, renderer, fonts[2], PAUSE_START_X,
+                                          y, PAUSE_END_X, color, alpha);
+                }
+            }
         }
     }
     else if (game_state->type == MENU_MODE)
@@ -290,13 +365,6 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
 
             display_image(renderer, MENU_BOX_PATH, &box, 0, V3(255, 255, 255),
                           MENU_BOX_ALPHA, 0, 0);
-
-            /*
-            SDL_SetRenderDrawBlendMode(renderer->sdl, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(renderer->sdl, 0, 0, 0, MENU_BOX_ALPHA);
-            SDL_RenderFillRect(renderer->sdl, &box);
-            SDL_SetRenderDrawBlendMode(renderer->sdl, SDL_BLENDMODE_NONE);
-            */
         }
 
         // render options

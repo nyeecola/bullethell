@@ -21,6 +21,7 @@
 #include "math.hpp"
 #include "game_mode.hpp"
 #include "menu_mode.hpp"
+#include "pause_mode.hpp"
 #include "game_state.hpp"
 #include "text.hpp"
 
@@ -29,6 +30,7 @@
 #include "utils.cpp"
 #include "text.cpp"
 #include "menu_mode.cpp"
+#include "pause_mode.cpp"
 #include "game_initialization.cpp"
 #include "game_mode.cpp"
 #include "game_state.cpp"
@@ -86,7 +88,7 @@ int main(int, char *[])
     assert(game_state);
     game_state->game = initialize_game_mode();
     game_state->menu = initialize_menu_mode();
-    //game_state->pause = initialize_pause_mode();
+    game_state->pause = initialize_pause_mode();
     game_state->type = MENU_MODE;
 
     // DEBUG
@@ -142,6 +144,7 @@ int main(int, char *[])
                         }
                         else if (game_state->type == GAME_MODE)
                         {
+                            game_state->pause->selected_option = OPTION_START;
                             game_state->type = PAUSE_MODE;
                         }
                         else if (game_state->type == MENU_MODE)
@@ -190,6 +193,39 @@ int main(int, char *[])
                                     running = false;
                                     break;
                                 default: break;
+                            }
+                        }
+                    }
+
+                    else if (game_state->type == PAUSE_MODE)
+                    {
+                        if (event.key.keysym.scancode == SDL_SCANCODE_UP ||
+                            event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+                        {
+                            if (game_state->pause->selected_option == OPTION_START)
+                            {
+                                game_state->pause->selected_option = OPTION_EXIT;
+                            }
+                            else
+                            {
+                                game_state->pause->selected_option = OPTION_START;
+                            }
+                        }
+                        else if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
+                        {
+                            switch (game_state->pause->selected_option)
+                            {
+                                case OPTION_START:
+                                    game_state->type = GAME_MODE;
+                                    break;
+                                case OPTION_EXIT:
+                                    game_state->game = reset_game(game_state->game);
+                                    game_state->menu->selected_option = OPTION_START;
+                                    game_state->type = MENU_MODE;
+                                    break;
+                                default:
+                                    assert(0);
+                                    break;
                             }
                         }
                     }
