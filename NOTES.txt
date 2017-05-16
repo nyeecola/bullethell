@@ -2,6 +2,7 @@
 
 - Create start menu                                           (in-progress)
 - Add proper sprites                                          (in-progress)
+- Refactor KEYDOWN mess that is in main.cpp
 - Add audio system
 - Add support for "idle" animations
 - Add gfx particles
