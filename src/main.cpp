@@ -90,6 +90,7 @@ int main(int, char *[])
     game_state->menu = initialize_menu_mode();
     game_state->pause = initialize_pause_mode();
     game_state->type = MENU_MODE;
+    game_state->running = true;
 
     // DEBUG
     // TODO: maybe make this hero's special atk?
@@ -116,11 +117,10 @@ int main(int, char *[])
     */
 
     // main loop
-    bool running = true;
     u64 current_counter = SDL_GetPerformanceCounter();
     u64 last_counter = 0;
     double delta_time = 0;
-    while (running)
+    while (game_state->running)
     {
         // handle events
         SDL_Event event;
@@ -129,106 +129,14 @@ int main(int, char *[])
             switch (event.type)
             {
                 case SDL_QUIT:
-                    running = false;
+                    game_state->running = false;
                     break;
                 case SDL_MOUSEMOTION:
                     input->mouse.x = event.motion.x;
                     input->mouse.y = event.motion.y;
                     break;
                 case SDL_KEYDOWN: // TODO: find a better way to handle keydowns and keyups
-                    if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                    {
-                        if (game_state->type == PAUSE_MODE)
-                        {
-                            game_state->type = GAME_MODE;
-                        }
-                        else if (game_state->type == GAME_MODE)
-                        {
-                            game_state->pause->selected_option = OPTION_START;
-                            game_state->type = PAUSE_MODE;
-                        }
-                        else if (game_state->type == MENU_MODE)
-                        {
-                            running = false;
-                        }
-                    }
-
-                    else if (game_state->type == MENU_MODE)
-                    {
-                        if (event.key.keysym.scancode == SDL_SCANCODE_UP)
-                        {
-                            game_state->menu->selected_option--;
-                            if (game_state->menu->selected_option == OPTION_BLANK)
-                            {
-                                game_state->menu->selected_option--;
-                            }
-                            if (game_state->menu->selected_option == -1)
-                            {
-                                game_state->menu->selected_option = OPTION_COUNT - 1;
-                            }
-                        }
-                        else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-                        {
-                            game_state->menu->selected_option++;
-                            if (game_state->menu->selected_option == OPTION_BLANK)
-                            {
-                                game_state->menu->selected_option++;
-                            }
-                            if (game_state->menu->selected_option == OPTION_COUNT)
-                            {
-                                game_state->menu->selected_option = 0;
-                            }
-                        }
-                        else if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
-                        {
-                            switch (game_state->menu->selected_option)
-                            {
-                                case OPTION_START:
-                                    game_state->type = GAME_MODE;
-                                    break;
-                                case OPTION_SETTINGS:
-                                    // TODO
-                                    break;
-                                case OPTION_EXIT:
-                                    running = false;
-                                    break;
-                                default: break;
-                            }
-                        }
-                    }
-
-                    else if (game_state->type == PAUSE_MODE)
-                    {
-                        if (event.key.keysym.scancode == SDL_SCANCODE_UP ||
-                            event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-                        {
-                            if (game_state->pause->selected_option == OPTION_START)
-                            {
-                                game_state->pause->selected_option = OPTION_EXIT;
-                            }
-                            else
-                            {
-                                game_state->pause->selected_option = OPTION_START;
-                            }
-                        }
-                        else if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
-                        {
-                            switch (game_state->pause->selected_option)
-                            {
-                                case OPTION_START:
-                                    game_state->type = GAME_MODE;
-                                    break;
-                                case OPTION_EXIT:
-                                    game_state->game = reset_game(game_state->game);
-                                    game_state->menu->selected_option = OPTION_START;
-                                    game_state->type = MENU_MODE;
-                                    break;
-                                default:
-                                    assert(0);
-                                    break;
-                            }
-                        }
-                    }
+                    handle_keydown(game_state, event);
                     break;
                 default: break;
             }
