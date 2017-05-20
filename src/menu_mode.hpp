@@ -36,5 +36,7 @@ struct menu_mode_t
     std::list<particle_t *> *particles;
 
     double time_since_last_spawn;
+    double time_since_last_color;
     double last_angle;
+    v3 particles_color;
 };

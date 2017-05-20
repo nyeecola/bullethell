@@ -13,11 +13,12 @@
 - Add hero's slowmo
 - Make ai's actions deterministic
 - Add powerups for hero's basic attacks
-- Stop using assert on malloc's result (use exit(1))
-- Investigate why sometimes the games freezes for a fraction of a second
-- Check if there are memory leaks
+- Check if there are any memory leaks
 
 // extra
+- Stop using assert on malloc's result (use exit(1))
+- Investigate why sometimes the games freezes for a fraction of a second
+    - Probably is because of many allocations (?)
 - Find a way to switch Vsync/AA without destroying the window
 
 // for optimizations

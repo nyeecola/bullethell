@@ -368,28 +368,32 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
         }
 
         // spawn particles
+        // TODO: stop using hardcoded values here
         if (menu->last_angle > 200000) menu->last_angle = 0;
-        if (menu->time_since_last_spawn >= 0.08)
+        if (menu->time_since_last_color >= 0.1)
         {
-            menu->time_since_last_spawn = menu->time_since_last_spawn - 0.08 + dt;
+            menu->time_since_last_color = menu->time_since_last_color - 0.1 + dt;
+
+            menu->particles_color.x = rand() % 255;
+            menu->particles_color.y = rand() % 255;
+            menu->particles_color.z = rand() % 255;
+        }
+        menu->time_since_last_color += dt;
+        if (menu->time_since_last_spawn >= 0.05)
+        {
+            menu->time_since_last_spawn = menu->time_since_last_spawn - 0.05 + dt;
 
             double x, y;
-            for (int i = 0; i < 60; i++)
+            for (int i = 0; i < 24; i++)
             {
-                //double radians = (2 * PI / 60) * i + (menu->last_angle += 0.0008);
-                double radians = (2 * PI / 60) * i + (menu->last_angle += 0.004);
+                double radians = (2 * PI / 24) * i + (menu->last_angle += 0.001);
                 x = cos(radians);
                 y = sin(radians);
 
-                v3 color;
-                color.x = rand() % 256;
-                color.y = rand() % 256;
-                //color.z = rand() % 256;
-                color.z = 255;
-
                 v2 pos = V2(DEFAULT_SCREEN_WIDTH / 2, DEFAULT_SCREEN_HEIGHT / 4);
-                particle_t *p = spawn_particle_towards(pos, V2(x, y), 0, 300, V2(0, 0),
-                                                       BALL_IMG_PATH, 30, 30, color, 0);
+                particle_t *p = spawn_particle_towards(pos, V2(x, y), 0, 200, V2(0, 0),
+                                                       BALL_IMG_PATH, 30, 30,
+                                                       menu->particles_color, 0);
                 menu->particles->push_back(p);
             }
         }
@@ -404,10 +408,10 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
             update_particle_position(particle, dt);
 
             // TODO: use current instead of default (we don't have current yet :()
-            if (particle->pos.x < -DEFAULT_SCREEN_WIDTH / 2 ||
-                particle->pos.x > DEFAULT_SCREEN_WIDTH + DEFAULT_SCREEN_WIDTH / 2 ||
-                particle->pos.y < -DEFAULT_SCREEN_HEIGHT / 2 ||
-                particle->pos.y > DEFAULT_SCREEN_HEIGHT + DEFAULT_SCREEN_HEIGHT / 2)
+            if (particle->pos.x < -DEFAULT_SCREEN_WIDTH  - 40||
+                particle->pos.x > DEFAULT_SCREEN_WIDTH + 40 ||
+                particle->pos.y < -DEFAULT_SCREEN_HEIGHT  - 40||
+                particle->pos.y > DEFAULT_SCREEN_HEIGHT + 40)
             {
                 it = menu->particles->erase(it);
                 free(particle);
@@ -626,7 +630,8 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
         assert(menu);
 
         // render background
-        SDL_SetRenderDrawColor(renderer->sdl, 170, 20, 20, 255);
+        // TODO: stop using hardcoded values here
+        SDL_SetRenderDrawColor(renderer->sdl, 110, 0, 0, 255);
         SDL_RenderClear(renderer->sdl);
 
         // render particles
@@ -661,6 +666,7 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
 
         // render options
         {
+            // main menu options
             if (menu->current_menu == MAIN_MENU)
             {
                 for (int i = 0; i < OPTION_COUNT; i++)
@@ -701,6 +707,7 @@ void game_state_render(game_state_t *game_state, font_t **fonts, renderer_t *ren
                                           MENU_END_X, color, alpha);
                 }
             }
+            // settings menu options
             else if (menu->current_menu == SETTINGS_MENU)
             {
                 for (int i = 0; i < SETTINGS_OPTION_COUNT; i++)
