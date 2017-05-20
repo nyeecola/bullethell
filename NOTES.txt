@@ -1,9 +1,8 @@
 ### TODO ###
 
-- Create start menu                                           (in-progress)
 - Add proper sprites                                          (in-progress)
-- Add support for different screen sizes
 - Add audio system
+    - Make game_state's volume work
 - Add support for "idle" animations
 - Add gfx particles
 - Finish fight system
@@ -16,6 +15,9 @@
 - Add powerups for hero's basic attacks
 - Add support for software rendering (stop using MSAA)
 - Stop using assert on malloc's result (use exit(1))
+- Investigate why sometimes the games freezes for a fraction of a second
+- Check if there are memory leaks
+- Find a way to switch Vsync/AA without destroying the window
 
 // for optimizations
 - Create profiler (both for allocations and for performance)

@@ -130,7 +130,7 @@ bool detect_particle_collision(game_mode_t *game, particle_t *particle)
     return false;
 }
 
-// creates a circular attack using the state passed by `atk`
+// creates an attack using the state passed by `atk`
 // read the atk_pattern_t structure for more information
 inline void do_atk(std::list<particle_t *> *particles, int owner, atk_pattern_t *atk, double dt)
 {

@@ -59,3 +59,46 @@ inline double get_current_player_hit_circle_radius(entity_t entity)
             PARTICLE_DESTROY_ON_HIT_DELTA_RADIUS *
             entity.player_data.time_since_hit);
 }
+
+void create_renderer(renderer_t *renderer, font_t **fonts, SDL_Window **window, int flags)
+{
+    if (renderer->sdl) SDL_DestroyRenderer(renderer->sdl);
+    SDL_DestroyWindow(*window);
+    *window = SDL_CreateWindow("Bullet Hell",
+                               SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED,
+                               DEFAULT_SCREEN_WIDTH,
+                               DEFAULT_SCREEN_HEIGHT,
+                               SDL_WINDOW_SHOWN);
+
+    renderer->sdl = SDL_CreateRenderer(*window, -1, flags);
+    if (!renderer->sdl)
+    {
+        SDL_DestroyWindow(*window);
+        force_quit("Failed to create renderer.\n");
+    }
+
+    renderer->images = std::map<std::string, SDL_Texture *>();
+
+    fonts[0] = initialize_font(renderer, FONT_PATH, 16);
+    fonts[1] = initialize_font(renderer, FONT_PATH, 20);
+    fonts[2] = initialize_font(renderer, FONT_PATH, 32);
+}
+
+void enable_antialiasing(renderer_t *renderer, font_t **fonts, SDL_Window **window, int flags)
+{
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+    glEnable(GL_MULTISAMPLE_ARB);
+
+    create_renderer(renderer, fonts, window, flags);
+}
+
+void disable_antialiasing(renderer_t *renderer, font_t **fonts, SDL_Window **window, int flags)
+{
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+    glDisable(GL_MULTISAMPLE_ARB);
+
+    create_renderer(renderer, fonts, window, flags);
+}

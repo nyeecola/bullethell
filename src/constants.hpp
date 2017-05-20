@@ -5,7 +5,7 @@
 #define DEFAULT_SCREEN_HEIGHT 800
 
 // DEBUG TEXT
-#define FONT_PATH "assets/Inconsolata-Bold.ttf"
+#define FONT_PATH "assets/DejaVuSansMono.ttf"
 
 // TEST ASSETS
 #define BALL_IMG_PATH "assets/ball.png"

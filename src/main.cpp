@@ -27,8 +27,8 @@
 
 #include "bin_heap.cpp"
 #include "math.cpp"
-#include "utils.cpp"
 #include "text.cpp"
+#include "utils.cpp"
 #include "menu_mode.cpp"
 #include "pause_mode.cpp"
 #include "game_initialization.cpp"
@@ -55,34 +55,23 @@ int main(int, char *[])
         force_quit("Failed to create window.\n");
     }
 
-    // TODO: handle error (should just print a message, not crash the program)
+    // TODO: should it be enabled or disabled by default?
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
     glEnable(GL_MULTISAMPLE_ARB);
 
     // create renderer
-#if 0
-    SDL_Renderer* sdl_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+#if 1
+    int flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 #else
-    SDL_Renderer* sdl_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    int flags = SDL_RENDERER_ACCELERATED;
 #endif
-    if (!sdl_renderer)
-    {
-        SDL_DestroyWindow(window);
-        force_quit("Failed to create renderer.\n");
-    }
+    font_t **fonts = (font_t **) malloc(3 * sizeof(*fonts));
     renderer_t renderer = {};
-    renderer.sdl = sdl_renderer;
+    create_renderer(&renderer, fonts, &window, flags);
 
     // initialization
     // TODO: set seed for RNG
-    font_t *fonts[] =
-    {
-        initialize_font(&renderer, FONT_PATH, 20),
-        initialize_font(&renderer, FONT_PATH, 26),
-        initialize_font(&renderer, FONT_PATH, 32),
-    };
-    // TODO: error check font initialization
     input_t *input = initialize_input();
     game_state_t *game_state = (game_state_t *) calloc(1, sizeof(*game_state));
     assert(game_state);
@@ -91,6 +80,9 @@ int main(int, char *[])
     game_state->pause = initialize_pause_mode();
     game_state->type = MENU_MODE;
     game_state->running = true;
+    game_state->volume = 100;
+    game_state->vsync = true;
+    game_state->anti_aliasing = true;
 
     // DEBUG
     // TODO: maybe make this hero's special atk?
@@ -136,7 +128,7 @@ int main(int, char *[])
                     input->mouse.y = event.motion.y;
                     break;
                 case SDL_KEYDOWN: // TODO: find a better way to handle keydowns and keyups
-                    handle_keydown(game_state, event);
+                    handle_keydown(game_state, &renderer, fonts, &window, event);
                     break;
                 default: break;
             }

@@ -13,5 +13,9 @@ struct game_state_t
     menu_mode_t *menu;
     pause_mode_t *pause;
 
+    bool vsync;
+    bool anti_aliasing;
+    int volume;
+
     bool running;
 };
