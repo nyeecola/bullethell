@@ -56,9 +56,9 @@ int main(int, char *[])
     }
 
     // TODO: should it be enabled or disabled by default?
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
-    glEnable(GL_MULTISAMPLE_ARB);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+    glDisable(GL_MULTISAMPLE_ARB);
 
     // create renderer
 #if 1
@@ -82,7 +82,7 @@ int main(int, char *[])
     game_state->running = true;
     game_state->volume = 100;
     game_state->vsync = true;
-    game_state->anti_aliasing = true;
+    game_state->anti_aliasing = false;
 
     // DEBUG
     // TODO: maybe make this hero's special atk?
