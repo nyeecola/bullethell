@@ -93,7 +93,8 @@ int main(int, char *[])
     game_state->pause = initialize_pause_mode();
     game_state->type = MENU_MODE;
     game_state->running = true;
-    game_state->volume = 100;
+    game_state->volume = 50;
+    Mix_Volume(-1, MIX_MAX_VOLUME * game_state->volume / 100);
     game_state->vsync = true;
     game_state->anti_aliasing = false;
 

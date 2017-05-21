@@ -295,6 +295,7 @@ void game_state_update(game_state_t *game_state, input_t *input, audio_t mixer, 
 
                 if (game->player.health <= 0)
                 {
+                    // TODO: destroy player and show defeat screen
                     game_state->game = reset_game(game_state->game);
                     return;
                 }

@@ -13,6 +13,7 @@
 - Create score system
 - Make ai's actions deterministic
 - Add powerups for hero's basic attacks
+- Add sound effects for enemy's attacks
 - Add support for "idle" animations
 
 // extra
@@ -21,6 +22,7 @@
     - Probably it is because of too many allocations (?)
 - Check again if there are any memory leaks
 - Find a way to switch Vsync/AA without destroying the window
+- Add menu music
 
 // for optimizations
 - Create profiler (both for allocations and for performance)
