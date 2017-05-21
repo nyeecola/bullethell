@@ -15,7 +15,7 @@ struct game_state_t
 
     bool vsync;
     bool anti_aliasing;
-    int volume;
+    int volume; // TODO: probably should put this on `audio_t`
 
     bool running;
 };

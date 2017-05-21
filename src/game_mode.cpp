@@ -333,7 +333,7 @@ game_mode_t *reset_game(game_mode_t *game)
     return initialize_game_mode();
 }
 
-void do_players_actions(game_mode_t *game, input_t *input, double dt)
+void do_players_actions(game_mode_t *game, input_t *input, audio_t mixer, double dt)
 {
     assert(game);
     assert(input);
@@ -429,12 +429,17 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
     {
         // FIXME: not sure if needed (may cause problems? like firing inconsistently)
         double excess_time = game->player.player_data.time_since_last_shot - PLAYER_SHOT_COOLDOWN;
+
         if (input->keys_pressed[SDL_SCANCODE_Z] && excess_time > 0)
         {
+            // play sound
+            Mix_PlayChannel(0, mixer.shot, 0);
+
+            // TODO: remove hardcoded values
             game->player.player_data.time_since_last_shot = dt;
             v2 dir = V2(0, -1);
             v2 accel = V2(0, 0);
-            int shot_speed = 600;
+            int shot_speed = 1300;
             int shot_w = 4;
             int shot_h = 14;
             v3 color = V3(255, 255, 255);
@@ -468,6 +473,7 @@ void do_players_actions(game_mode_t *game, input_t *input, double dt)
                                               shot_speed, accel,
                                               PLAYER_SHOT_PATH, shot_w, shot_h, color, 0);
             game->particles->push_back(particle);
+
         }
 
         game->player.player_data.time_since_last_shot += dt;

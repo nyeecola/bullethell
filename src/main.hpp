@@ -35,3 +35,10 @@ struct input_t
     mouse_t mouse;
 };
 
+// ---------------------
+// audio
+// ---------------------
+struct audio_t
+{
+    Mix_Chunk *shot; // should be played on channel 0
+};

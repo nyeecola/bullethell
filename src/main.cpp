@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <GL/gl.h>
 
@@ -38,7 +39,7 @@
 int main(int, char *[])
 {
     // initialize video
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     {
         force_quit("Failed to initialize SDL.\n");
     }
@@ -55,7 +56,19 @@ int main(int, char *[])
         force_quit("Failed to create window.\n");
     }
 
-    // TODO: should it be enabled or disabled by default?
+    // initialize mixer
+    audio_t mixer = {};
+    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
+    {
+        // TODO: remove hardcoded value
+        mixer.shot = Mix_LoadWAV("assets/shot.wav");
+    }
+    else
+    {
+        printf("Failed to initialize audio mixer.\n");
+    }
+
+    // disable multisampling by default
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
     glDisable(GL_MULTISAMPLE_ARB);
@@ -141,7 +154,7 @@ int main(int, char *[])
                                (double) SDL_GetPerformanceFrequency());
 
         // update world for this frame
-        game_state_update(game_state, input, delta_time);
+        game_state_update(game_state, input, mixer, delta_time);
 
         // render frame
         game_state_render(game_state, fonts, &renderer);
@@ -149,8 +162,10 @@ int main(int, char *[])
         SDL_RenderPresent(renderer.sdl);
     }
 
+    // clean up
     SDL_DestroyRenderer(renderer.sdl);
     SDL_DestroyWindow(window);
+    Mix_CloseAudio();
     SDL_Quit();
 
     return 0;

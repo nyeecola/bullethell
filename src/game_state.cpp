@@ -71,6 +71,7 @@ void handle_keydown(game_state_t *game_state, renderer_t *renderer, font_t **fon
                         break;
                     case SETTINGS_OPTION_VOLUME:
                         game_state->volume -= 5;
+                        Mix_Volume(-1, MIX_MAX_VOLUME * game_state->volume / 100);
                         if (game_state->volume < 0) game_state->volume = 0;
                         break;
                     default: break;
@@ -116,6 +117,7 @@ void handle_keydown(game_state_t *game_state, renderer_t *renderer, font_t **fon
                         break;
                     case SETTINGS_OPTION_VOLUME:
                         game_state->volume += 5;
+                        Mix_Volume(-1, MIX_MAX_VOLUME * game_state->volume / 100);
                         if (game_state->volume > 100) game_state->volume = 100;
                         break;
                     default: break;
@@ -219,7 +221,7 @@ void handle_keydown(game_state_t *game_state, renderer_t *renderer, font_t **fon
     }
 }
 
-void game_state_update(game_state_t *game_state, input_t *input, double dt)
+void game_state_update(game_state_t *game_state, input_t *input, audio_t mixer, double dt)
 {
     assert(game_state);
     assert(input);
@@ -234,7 +236,7 @@ void game_state_update(game_state_t *game_state, input_t *input, double dt)
         // TODO: remove this check since we'll handle death differently
         if (game->player.health > 0)
         {
-            do_players_actions(game, input, dt);
+            do_players_actions(game, input, mixer, dt);
         }
 
         // perform enemy's actions
